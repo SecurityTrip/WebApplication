@@ -9,6 +9,7 @@ namespace WebApplication.Models
 
     public class NewsCardViewModel
     {
+        public int ArticleId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Summary { get; set; } = string.Empty;
         public string ImageSrc { get; set; } = string.Empty;

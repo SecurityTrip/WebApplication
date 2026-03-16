@@ -10,7 +10,7 @@
     <div>
         @foreach (var news in Model.LatestNews)
         {
-            <a class="news-card" asp-controller="Home" asp-action="@news.ActionName">
+            <a class="news-card" asp-controller="Home" asp-action="@news.ActionName" asp-route-id="@news.ArticleId">
                 <img src="@news.ImageSrc" alt="@news.Title" />
                 <h3>@news.Title</h3>
                 <p>@news.Summary</p>

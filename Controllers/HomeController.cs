@@ -45,10 +45,11 @@ namespace WebApplication.Controllers
             {
                 LatestNews = latestNews.Select(n => new NewsCardViewModel
                 {
+                    ArticleId = n.Id,
                     Title = n.Title ?? string.Empty,
                     Summary = n.Summary ?? string.Empty,
                     ImageSrc = ResolveImagePath(n.ImageFileName),
-                    ActionName = n.Title == "Подсластители под угрозой" ? nameof(Article3) : nameof(InDevelopment)
+                    ActionName = nameof(Article)
                 }).ToList(),
                 NewestRecipes = newestRecipes.Select(r => new RecipeCardViewModel
                 {
@@ -113,15 +114,13 @@ namespace WebApplication.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Article3()
+        public async Task<IActionResult> Article(int id)
         {
-            var article = await _context.News
-                .OrderByDescending(n => n.CreatedAt)
-                .FirstOrDefaultAsync(n => n.Title == "Подсластители под угрозой");
+            var article = await _context.News.FindAsync(id);
 
             if (article == null)
             {
-                return RedirectToAction(nameof(InDevelopment));
+                return NotFound();
             }
 
             var model = new ArticleViewModel
@@ -133,6 +132,20 @@ namespace WebApplication.Controllers
             };
 
             return View(model);
+        }
+
+        // Backward-compatibility redirect
+        public async Task<IActionResult> Article3()
+        {
+            var article = await _context.News
+                .FirstOrDefaultAsync(n => n.Title == "Подсластители под угрозой");
+
+            if (article == null)
+            {
+                return RedirectToAction(nameof(InDevelopment));
+            }
+
+            return RedirectToAction(nameof(Article), new { id = article.Id });
         }
 
         public async Task<IActionResult> Soups()
