@@ -1,4 +1,4 @@
-@model IEnumerable<WebApplication.Models.Recipe>
+@model IEnumerable<WebApplication.Models.RecipeLinkViewModel>
 @{
     ViewData["Title"] = "Избранное";
 }
@@ -17,14 +17,7 @@
             @foreach (var recipe in Model)
             {
                 <li>
-                    @if (!string.IsNullOrWhiteSpace(recipe.Slug))
-                    {
-                        <a asp-controller="Home" asp-action="Recipe" asp-route-slug="@recipe.Slug">@recipe.Name</a>
-                    }
-                    else
-                    {
-                        <a asp-controller="Home" asp-action="InDevelopment">@recipe.Name</a>
-                    }
+                    <a asp-controller="Home" asp-action="@recipe.ActionName" asp-route-slug="@recipe.Slug">@recipe.Name</a>
                 </li>
             }
         </ul>

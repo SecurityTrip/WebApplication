@@ -10,10 +10,8 @@
     <div>
         @foreach (var news in Model.LatestNews)
         {
-            var action = news.Title == "Подсластители под угрозой" ? "Article3" : "InDevelopment";
-            var imageSrc = news.ImageFileName.StartsWith("https://") ? news.ImageFileName : $"~/images/{news.ImageFileName}";
-            <a class="news-card" asp-controller="Home" asp-action="@action">
-                <img src="@imageSrc" alt="@news.Title" />
+            <a class="news-card" asp-controller="Home" asp-action="@news.ActionName">
+                <img src="@news.ImageSrc" alt="@news.Title" />
                 <h3>@news.Title</h3>
                 <p>@news.Summary</p>
             </a>
@@ -26,12 +24,11 @@
     <div class="cards">
         @foreach (var recipe in Model.NewestRecipes)
         {
-            var imageSrc = recipe.ImageFileName.StartsWith("https://") ? recipe.ImageFileName : $"~/images/{recipe.ImageFileName}";
             <a class="recipe-card"
                asp-controller="Home"
-               asp-action="@(string.IsNullOrWhiteSpace(recipe.Slug) ? "Catalog" : "Recipe")"
+               asp-action="@recipe.ActionName"
                asp-route-slug="@recipe.Slug">
-                <img src="@imageSrc" alt="@recipe.Name" />
+                <img src="@recipe.ImageSrc" alt="@recipe.Name" />
                 <h4>@recipe.Name</h4>
             </a>
         }
@@ -43,21 +40,10 @@
     <div class="cards">
         @foreach (var category in Model.PopularCategories)
         {
-            var categoryAction = category.Name switch
-            {
-                "Russian" => "Soups",
-                _ => "InDevelopment"
-            };
-            var categoryImage = category.Name switch
-            {
-                "Russian" => "soups.png",
-                _ => "salads.png"
-            };
-
-            <a class="category-card" asp-controller="Home" asp-action="@categoryAction">
-                <img src="~/images/@categoryImage" alt="@category.DisplayName" />
+            <a class="category-card" asp-controller="Home" asp-action="@category.ActionName">
+                <img src="~/images/@category.ImageFileName" alt="@category.DisplayName" />
                 <h4>@category.DisplayName</h4>
-                <p style="font-size:13px;color:var(--muted);margin:4px 0 0;">@category.RecipeCount блюд</p>
+                <p class="category-count">@category.RecipeCount блюд</p>
             </a>
         }
     </div>

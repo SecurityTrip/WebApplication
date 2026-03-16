@@ -60,17 +60,7 @@
 </main>
 
 @section Scripts {
-    <script>
-        function syncStepsHeight() {
-            const left = document.querySelector('.recipe-page .left-col');
-            const steps = document.querySelector('.recipe-page .steps');
-            if (!left || !steps) return;
-            const leftRect = left.getBoundingClientRect();
-            steps.style.height = leftRect.height + 'px';
-        }
-        window.addEventListener('load', syncStepsHeight);
-        window.addEventListener('resize', () => { setTimeout(syncStepsHeight, 50); });
-    </script>
+    <script src="~/js/recipe-page.js" asp-append-version="true"></script>
     <script src="~/js/step-modal.js" asp-append-version="true"></script>
     <script src="~/js/scale-ingredients.js" asp-append-version="true"></script>
 }

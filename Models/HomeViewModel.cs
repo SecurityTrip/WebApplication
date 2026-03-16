@@ -2,16 +2,33 @@ namespace WebApplication.Models
 {
     public class HomeViewModel
     {
-        public IEnumerable<News> LatestNews { get; set; } = new List<News>();
-        public IEnumerable<Recipe> NewestRecipes { get; set; } = new List<Recipe>();
-        public IEnumerable<CategoryWithCount> PopularCategories { get; set; } = new List<CategoryWithCount>();
+        public IEnumerable<NewsCardViewModel> LatestNews { get; set; } = new List<NewsCardViewModel>();
+        public IEnumerable<RecipeCardViewModel> NewestRecipes { get; set; } = new List<RecipeCardViewModel>();
+        public IEnumerable<CategoryCardViewModel> PopularCategories { get; set; } = new List<CategoryCardViewModel>();
     }
 
-    public class CategoryWithCount
+    public class NewsCardViewModel
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Summary { get; set; } = string.Empty;
+        public string ImageSrc { get; set; } = string.Empty;
+        public string ActionName { get; set; } = string.Empty;
+    }
+
+    public class RecipeCardViewModel
     {
         public int Id { get; set; }
-        public string? Name { get; set; }
-        public string? DisplayName { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Slug { get; set; }
+        public string ImageSrc { get; set; } = string.Empty;
+        public string ActionName { get; set; } = string.Empty;
+    }
+
+    public class CategoryCardViewModel
+    {
+        public string DisplayName { get; set; } = string.Empty;
+        public string ImageFileName { get; set; } = string.Empty;
+        public string ActionName { get; set; } = string.Empty;
         public int RecipeCount { get; set; }
     }
 }

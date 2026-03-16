@@ -21,3 +21,4 @@ h2 + div > div p{font-size:13px;color:var(--muted);margin:0}
 .news-card{cursor:pointer}
 .news-card:hover{box-shadow:0 6px 14px rgba(0,0,0,0.12)}
 .recipe-card:hover, .category-card:hover{box-shadow:0 6px 14px rgba(0,0,0,0.08)}
+.category-count{font-size:13px;color:var(--muted);margin:4px 0 0}

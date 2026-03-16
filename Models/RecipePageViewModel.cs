@@ -2,9 +2,20 @@ namespace WebApplication.Models
 {
     public class RecipePageViewModel
     {
-        public Recipe Recipe { get; set; } = new();
-        public List<RecipeIngredient> Ingredients { get; set; } = new();
-        public List<RecipeStep> Steps { get; set; } = new();
-        public double AverageRating => Recipe.RatingCount > 0 ? (double)Recipe.RatingSum / Recipe.RatingCount : 0.0;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string MainImageSrc { get; set; } = string.Empty;
+        public string DifficultyText { get; set; } = string.Empty;
+        public string CuisineText { get; set; } = string.Empty;
+        public string RatingText { get; set; } = "-";
+        public List<string> Ingredients { get; set; } = new();
+        public List<RecipeStepViewModel> Steps { get; set; } = new();
+    }
+
+    public class RecipeStepViewModel
+    {
+        public int StepNumber { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string ImageSrc { get; set; } = string.Empty;
     }
 }

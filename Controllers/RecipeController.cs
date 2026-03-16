@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Models.Requests;
 
 namespace WebApplication.Controllers
 {
@@ -213,8 +214,4 @@ namespace WebApplication.Controllers
         }
     }
 
-    public class RateRequest
-    {
-        public int Rating { get; set; }
-    }
 }

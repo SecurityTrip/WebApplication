@@ -47,6 +47,8 @@ a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 
+.article-hero-img { max-width: 100%; height: auto; margin-bottom: 16px; }
+
 /* ---- Отступы ---- */
 body > h1{max-width:var(--max-width);margin:18px auto;padding:0 18px;font-size:30px}
 body > div{max-width:var(--max-width);margin:0 auto;padding:0 18px}

@@ -31,11 +31,10 @@ namespace WebApplication.Controllers
                 .ToListAsync();
 
             var popularCategories = await _context.Categories
-                .Select(c => new CategoryWithCount
+                .Select(c => new
                 {
-                    Id = c.Id,
-                    Name = c.Name,
-                    DisplayName = c.DisplayName,
+                    c.Name,
+                    c.DisplayName,
                     RecipeCount = c.Recipes.Count
                 })
                 .OrderByDescending(c => c.RecipeCount)
@@ -44,9 +43,28 @@ namespace WebApplication.Controllers
 
             var viewModel = new HomeViewModel
             {
-                LatestNews = latestNews,
-                NewestRecipes = newestRecipes,
-                PopularCategories = popularCategories
+                LatestNews = latestNews.Select(n => new NewsCardViewModel
+                {
+                    Title = n.Title ?? string.Empty,
+                    Summary = n.Summary ?? string.Empty,
+                    ImageSrc = ResolveImagePath(n.ImageFileName),
+                    ActionName = n.Title == "Подсластители под угрозой" ? nameof(Article3) : nameof(InDevelopment)
+                }).ToList(),
+                NewestRecipes = newestRecipes.Select(r => new RecipeCardViewModel
+                {
+                    Id = r.Id,
+                    Name = r.Name ?? string.Empty,
+                    Slug = r.Slug,
+                    ImageSrc = ResolveImagePath(r.ImageFileName),
+                    ActionName = string.IsNullOrWhiteSpace(r.Slug) ? nameof(Catalog) : nameof(Recipe)
+                }).ToList(),
+                PopularCategories = popularCategories.Select(c => new CategoryCardViewModel
+                {
+                    DisplayName = c.DisplayName ?? string.Empty,
+                    ActionName = c.Name == "Russian" ? nameof(Soups) : nameof(InDevelopment),
+                    ImageFileName = c.Name == "Russian" ? "soups.png" : "salads.png",
+                    RecipeCount = c.RecipeCount
+                }).ToList()
             };
 
             return View(viewModel);
@@ -70,7 +88,14 @@ namespace WebApplication.Controllers
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
 
-            return View(favoriteRecipes);
+            var model = favoriteRecipes.Select(r => new RecipeLinkViewModel
+            {
+                Name = r.Name ?? string.Empty,
+                ActionName = string.IsNullOrWhiteSpace(r.Slug) ? nameof(InDevelopment) : nameof(Recipe),
+                Slug = r.Slug
+            }).ToList();
+
+            return View(model);
         }
 
         public IActionResult AddRecipe()
@@ -99,7 +124,15 @@ namespace WebApplication.Controllers
                 return RedirectToAction(nameof(InDevelopment));
             }
 
-            return View(article);
+            var model = new ArticleViewModel
+            {
+                Title = article.Title ?? string.Empty,
+                ImageSrc = ResolveImagePath(article.ImageFileName),
+                Summary = article.Summary ?? string.Empty,
+                ContentHtml = article.ContentHtml
+            };
+
+            return View(model);
         }
 
         public async Task<IActionResult> Soups()
@@ -110,7 +143,14 @@ namespace WebApplication.Controllers
                 .OrderBy(r => r.Name)
                 .ToListAsync();
 
-            return View(soups);
+            var model = soups.Select(r => new RecipeLinkViewModel
+            {
+                Name = r.Name ?? string.Empty,
+                ActionName = string.IsNullOrWhiteSpace(r.Slug) ? nameof(InDevelopment) : nameof(Recipe),
+                Slug = r.Slug
+            }).ToList();
+
+            return View(model);
         }
 
         [HttpGet("home/recipe/{slug}")]
@@ -129,9 +169,29 @@ namespace WebApplication.Controllers
 
             var model = new RecipePageViewModel
             {
-                Recipe = recipe,
-                Ingredients = recipe.Ingredients.OrderBy(i => i.SortOrder).ToList(),
-                Steps = recipe.Steps.OrderBy(s => s.StepNumber).ToList()
+                Name = recipe.Name ?? string.Empty,
+                Description = recipe.Description ?? string.Empty,
+                MainImageSrc = ResolveImagePath(recipe.ImageFileName),
+                DifficultyText = GetDifficultyText(recipe.Difficulty),
+                CuisineText = string.IsNullOrWhiteSpace(recipe.Cuisine)
+                    ? recipe.Category?.DisplayName ?? "Не указано"
+                    : recipe.Cuisine,
+                RatingText = recipe.RatingCount > 0
+                    ? ((double)recipe.RatingSum / recipe.RatingCount).ToString("0.0")
+                    : "—",
+                Ingredients = recipe.Ingredients
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => i.DisplayText)
+                    .ToList(),
+                Steps = recipe.Steps
+                    .OrderBy(s => s.StepNumber)
+                    .Select(s => new RecipeStepViewModel
+                    {
+                        StepNumber = s.StepNumber,
+                        Description = s.Description,
+                        ImageSrc = ResolveImagePath(s.ImagePath)
+                    })
+                    .ToList()
             };
 
             return View(model);
@@ -161,6 +221,29 @@ namespace WebApplication.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private static string ResolveImagePath(string? imageFileName)
+        {
+            if (string.IsNullOrWhiteSpace(imageFileName))
+            {
+                return "/images/placeholder.png";
+            }
+
+            return imageFileName.StartsWith("https://")
+                ? imageFileName
+                : $"/images/{imageFileName}";
+        }
+
+        private static string GetDifficultyText(int difficulty)
+        {
+            return difficulty switch
+            {
+                1 => "Легко",
+                2 => "Средне",
+                3 => "Сложно",
+                _ => "Не указано"
+            };
         }
     }
 }
