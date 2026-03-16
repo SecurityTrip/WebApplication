@@ -18,6 +18,6 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
 
-ENTRYPOINT ["dotnet", "WebApplication.dll"]
+# Use shell form so Railway's $PORT variable is expanded at runtime.
+CMD ["dotnet", "WebApplication.dll"]
