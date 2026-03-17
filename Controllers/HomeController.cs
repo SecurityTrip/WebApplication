@@ -8,12 +8,10 @@ namespace WebApplication.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
             _context = context;
         }
 
@@ -69,11 +67,6 @@ namespace WebApplication.Controllers
             };
 
             return View(viewModel);
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         public IActionResult Catalog()
@@ -132,20 +125,6 @@ namespace WebApplication.Controllers
             };
 
             return View(model);
-        }
-
-        // Backward-compatibility redirect
-        public async Task<IActionResult> Article3()
-        {
-            var article = await _context.News
-                .FirstOrDefaultAsync(n => n.Title == "Подсластители под угрозой");
-
-            if (article == null)
-            {
-                return RedirectToAction(nameof(InDevelopment));
-            }
-
-            return RedirectToAction(nameof(Article), new { id = article.Id });
         }
 
         public async Task<IActionResult> Soups()
@@ -209,26 +188,6 @@ namespace WebApplication.Controllers
             };
 
             return View(model);
-        }
-
-        public IActionResult Kharcho()
-        {
-            return RedirectToAction(nameof(Recipe), new { slug = "kharcho" });
-        }
-
-        public IActionResult Mushrooms()
-        {
-            return RedirectToAction(nameof(Recipe), new { slug = "mushrooms" });
-        }
-
-        public IActionResult Olivie()
-        {
-            return RedirectToAction(nameof(Recipe), new { slug = "olivie" });
-        }
-
-        public IActionResult Borsch()
-        {
-            return RedirectToAction(nameof(Recipe), new { slug = "borsch" });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
