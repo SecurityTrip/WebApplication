@@ -30,8 +30,16 @@
         <br>
 
         <div class="field">
-            <label for="cuisine">Кухня:</label><br>
-            <input type="text" name="cuisine" id="cuisine">
+            <label for="cuisineSelect">Кухня:</label><br>
+            <select id="cuisineSelect" name="cuisineId">
+                <option value="">Не выбрана</option>
+            </select>
+            <div id="newCuisineForm" style="display:none; margin-top: 8px;">
+                <input type="text" id="newCuisineName" placeholder="Название кухни" maxlength="60">
+                <button type="button" id="addCuisineBtn">Добавить</button>
+                <button type="button" id="cancelNewCuisine">Отмена</button>
+                <div id="newCuisineError" style="color:red; font-size:0.9em;"></div>
+            </div>
             <div class="error-msg"></div>
         </div>
         <br>

@@ -46,7 +46,19 @@ namespace WebApplication.Controllers
 
             await SyncPrimaryKeySequencesAsync();
 
-            var categoryId = ResolveCategoryId(request.Cuisine);
+            int categoryId;
+            Category? cuisineCategory = null;
+            if (request.CuisineId.HasValue)
+            {
+                cuisineCategory = await _context.Categories.FindAsync(request.CuisineId.Value);
+                categoryId = cuisineCategory != null ? cuisineCategory.Id : ResolveCategoryId(request.Cuisine);
+            }
+            else
+            {
+                categoryId = ResolveCategoryId(request.Cuisine);
+                cuisineCategory = await _context.Categories.FindAsync(categoryId);
+            }
+
             var slug = await GenerateUniqueSlugAsync(request.Title);
             var imageFolder = Path.Combine(_environment.WebRootPath, "images", "user");
             Directory.CreateDirectory(imageFolder);
@@ -61,7 +73,7 @@ namespace WebApplication.Controllers
                 Author = string.IsNullOrWhiteSpace(request.Author) ? null : request.Author.Trim(),
                 Slug = slug,
                 Description = request.Description.Trim(),
-                Cuisine = string.IsNullOrWhiteSpace(request.Cuisine) ? null : request.Cuisine.Trim(),
+                Cuisine = cuisineCategory?.DisplayName ?? (string.IsNullOrWhiteSpace(request.Cuisine) ? null : request.Cuisine.Trim()),
                 Difficulty = request.Difficulty,
                 ImageFileName = mainImageFileName,
                 IsFavorite = false,
@@ -272,6 +284,61 @@ namespace WebApplication.Controllers
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
+        }
+
+        /// <summary>
+        /// Get all cuisines (categories)
+        /// </summary>
+        [HttpGet("cuisines")]
+        public async Task<IActionResult> GetCuisines()
+        {
+            try
+            {
+                var cuisines = await _context.Categories
+                    .Select(c => new { c.Id, c.Name, c.DisplayName })
+                    .OrderBy(c => c.DisplayName)
+                    .ToListAsync();
+                return Ok(new { success = true, cuisines });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Create a new cuisine (category)
+        /// </summary>
+        [HttpPost("cuisines")]
+        public async Task<IActionResult> CreateCuisine([FromBody] CreateCuisineRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.DisplayName))
+                return BadRequest(new { success = false, message = "Укажите название кухни" });
+
+            var displayName = request.DisplayName.Trim();
+            if (displayName.Length < 2 || displayName.Length > 60)
+                return BadRequest(new { success = false, message = "Название кухни должно быть от 2 до 60 символов" });
+
+            if (!CuisineRegex.IsMatch(displayName))
+                return BadRequest(new { success = false, message = "Название кухни может содержать только буквы, пробелы и дефисы" });
+
+            var existing = await _context.Categories
+                .FirstOrDefaultAsync(c => c.DisplayName.ToLower() == displayName.ToLower());
+            if (existing != null)
+                return Ok(new { success = true, id = existing.Id, name = existing.Name, displayName = existing.DisplayName, isNew = false });
+
+            await _context.Database.ExecuteSqlRawAsync(@"
+SELECT setval(pg_get_serial_sequence('""Categories""', 'Id'), COALESCE(MAX(""Id""), 1)) FROM ""Categories"";
+");
+
+            var name = ToSlug(displayName);
+            if (string.IsNullOrWhiteSpace(name)) name = "cuisine";
+
+            var category = new Category { Name = name, DisplayName = displayName };
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, id = category.Id, name = category.Name, displayName = category.DisplayName, isNew = true });
         }
 
         /// <summary>
